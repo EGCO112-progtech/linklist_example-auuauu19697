@@ -5,8 +5,8 @@
 #include <string.h>
 
 // self-referential structure                       
-struct Node {
-   char Name[30];                                      
+struct Node {        
+   char Name[30];                          
    int id; // each listNode contains a character 
    struct Node *nextPtr; // pointer to next node
    struct Node *prevPtr; // poitner to previous node
@@ -19,29 +19,32 @@ typedef LLnode *LLPtr; // synonym for ListNode*
 
 int deletes( LLPtr *sPtr, int studentid );
 int isEmpty( LLPtr sPtr );
-void insert( LLPtr *sPtr, int studentid );
+void insert( LLPtr *sPtr, int studentid, char name[30]);
 void printList( LLPtr currentPtr );
 void Reverseprint( LLPtr currentPt);
 void instructions( void );
+void freeall(LLPtr *sPtr);
 
 int main( void )
 { 
    LLPtr startPtr = NULL; // initially there are no nodes
    unsigned int choice; // user's choice
    int item; // char entered by user
-
+   char name[30];
    instructions(); // display the menu
    printf( "%s", "? " );
    scanf( "%u", &choice );
 
    // loop while user does not choose 3
-   while ( choice != 3 ) { 
+   while (choice != 3) { 
 
       switch ( choice ) { 
          case 1:
             printf( "%s", "Enter a StudentID: " );
             scanf( "%d", &item );
-            insert( &startPtr, item ); // insert item in list
+            printf("%s","Enter Student Name: ");
+            scanf("%s", name);
+            insert( &startPtr, item ,name); // insert item in list
             printList( startPtr );
             Reverseprint(startPtr);
             break;
@@ -76,6 +79,7 @@ int main( void )
       scanf( "%u", &choice );
    } // end while
   /* Clear all nodes at the end of nodes*/
+   if(!isEmpty(startPtr)) freeall(&startPtr);
    puts( "End of run." );
 } // end main
 
@@ -89,7 +93,7 @@ void instructions( void )
 } // end function instructions
 
 // insert a new studentid into the list in sorted order
-void insert( LLPtr *sPtr, int studentid )
+void insert( LLPtr *sPtr, int studentid ,char name[30])
 { 
    LLPtr newPtr; // pointer to new node
    LLPtr previousPtr; // pointer to previous node in list
@@ -99,6 +103,7 @@ void insert( LLPtr *sPtr, int studentid )
 
    if ( newPtr != NULL ) { // is space available
       newPtr->id = studentid; // place studentid in node
+      strcpy(newPtr->Name,name); //place name in node
       newPtr->nextPtr = NULL; // node does not link to another node
       newPtr->prevPtr = NULL; 
        
@@ -144,7 +149,7 @@ int deletes( LLPtr *sPtr, int studentid )
    if ( studentid == ( *sPtr )->id ) { 
       tempPtr = *sPtr; // hold onto node being removed
       *sPtr = ( *sPtr )->nextPtr; // de-thread the node
-      (*sPtr)->prevPtr = NULL;
+      if(*sPtr) (*sPtr)->prevPtr = NULL;
       free( tempPtr ); // free the de-threaded node
       return studentid;
    } // end if
@@ -192,11 +197,12 @@ void printList( LLPtr currentPtr )
 
       // while not the end of the list
       while ( currentPtr->nextPtr!= NULL ) {
-         printf( "%d --> ", currentPtr->id );
+         printf( "%d %s--> ", currentPtr->id, currentPtr->Name);
+
          currentPtr = currentPtr->nextPtr;   
       } // end while
 
-      printf( "%d --> NULL\n",currentPtr->id );
+      printf( "%d %s--> NULL\n",currentPtr->id, currentPtr->Name);
        
 
      
@@ -221,14 +227,25 @@ void Reverseprint( LLPtr currentPtr )
 
       //print node from the end
       while ( currentPtr->prevPtr!= NULL ) {
-         printf( "%d --> ", currentPtr->id );
+         printf( "%d %s--> ", currentPtr->id, currentPtr->Name);
          currentPtr = currentPtr->prevPtr;   
       } // end while
 
-      printf( "%d --> NULL\n",currentPtr->id );
+      printf( "%d %s--> NULL\n",currentPtr->id, currentPtr->Name);
        
 
      
        
    } // end else
 } // end function printList
+
+//free all node
+void freeall(LLPtr *sPtr){
+   LLPtr tmp;
+   while(*(sPtr)!=NULL){
+      tmp = (*sPtr);
+      (*sPtr) = (*sPtr)->nextPtr;
+      free(tmp);
+   }
+   printf("All node cleared\n");
+}
